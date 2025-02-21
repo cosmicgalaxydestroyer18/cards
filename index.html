@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Match Game</title>
+    <style>
+        body {
+            background-color: #ffcccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 10px;
+            text-align: center;
+            color: black;
+        }
+        .hidden {
+            background-color: #ff9999;
+            color: black;
+        }
+        .message {
+            display: none;
+            font-size: 24px;
+            font-weight: bold;
+            color: red;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .fade-text {
+            display: none;
+            font-size: 50px;
+            font-weight: bold;
+            color: red;
+            position: absolute;
+            top: 40%;
+            opacity: 0;
+            transition: opacity 3s ease-in;
+        }
+        @keyframes fall {
+            from { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Memory Match Game 💖</h1>
+    <div class="game-board" id="gameBoard"></div>
+    <div class="message" id="winMessage">Happy 22 days before the best person's birthday Pigshithaaaa! 🎉❤️</div>
+    <div class="fade-text" id="loveMessage">I LOVE YOU</div>
+
+    <script>
+        const pairs = [
+            'Jan 20 - First Kiss',
+            'Jan 24 - Officially in Love',
+            'Feb 24 - First Sex',
+            'Dec 29 - First Proper Convo in Canteen',
+            'Jan 28 - First Video Call',
+            'Feb 1 - Hottest Makeout Sesh in Forum',
+            'March 5 - First Party Together, Hyatt',
+            'March 15 - First Bday Together'
+        ];
+        
+        let cards = [...pairs, ...pairs];
+        let flippedCards = [];
+        let matchedPairs = 0;
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function createBoard() {
+            cards = shuffle(cards);
+            const board = document.getElementById("gameBoard");
+            board.innerHTML = "";
+            cards.forEach((text, index) => {
+                const card = document.createElement("div");
+                card.classList.add("card", "hidden");
+                card.dataset.text = text;
+                card.dataset.index = index;
+                card.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 80%)`;
+                card.innerText = "ILY";
+                card.addEventListener("click", flipCard);
+                board.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if (flippedCards.length < 2 && this.classList.contains("hidden")) {
+                this.classList.remove("hidden");
+                this.innerText = this.dataset.text;
+                flippedCards.push(this);
+            }
+
+            if (flippedCards.length === 2) {
+                setTimeout(checkMatch, 500);
+            }
+        }
+
+        function checkMatch() {
+            if (flippedCards[0].dataset.text === flippedCards[1].dataset.text) {
+                matchedPairs++;
+                flippedCards = [];
+                if (matchedPairs === pairs.length) {
+                    document.getElementById("winMessage").style.display = "block";
+                    throwConfettiEffect(3);
+                    setTimeout(() => document.getElementById("loveMessage").style.opacity = "1", 4000);
+                }
+            } else {
+                flippedCards.forEach(card => {
+                    card.classList.add("hidden");
+                    card.innerText = "ILY";
+                });
+                flippedCards = [];
+            }
+        }
+
+        function throwConfettiEffect(times) {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (count >= times) {
+                    clearInterval(interval);
+                    return;
+                }
+                for (let i = 0; i < 30; i++) {
+                    const confetti = document.createElement("div");
+                    confetti.innerHTML = "🎉";
+                    confetti.style.position = "absolute";
+                    confetti.style.left = `${Math.random() * window.innerWidth}px`;
+                    confetti.style.top = `-50px`;
+                    confetti.style.fontSize = `${Math.random() * 20 + 10}px`;
+                    confetti.style.animation = "fall 3s linear";
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 3000);
+                }
+                count++;
+            }, 1500);
+        }
+        
+        createBoard();
+    </script>
+</body>
+</html>
